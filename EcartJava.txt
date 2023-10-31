@@ -1,0 +1,104 @@
+public class Membership {
+    private double discountPercentage;
+
+    public Membership(double discountPercentage) {
+        this.discountPercentage = discountPercentage;
+    }
+
+    public double getDiscountPercentage() {
+        return discountPercentage;
+    }
+}
+
+public class User {
+    private String username;
+    private String password;
+    private Membership membership;
+
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public Membership getMembership() {
+        return membership;
+    }
+
+    public void setMembership(Membership membership) {
+        this.membership = membership;
+    }
+}
+
+
+public class UserDatabase {
+    private static List<User> users = new ArrayList<>();
+
+    public static void registerUser(String username, String password) throws Exception {
+        for (User user : users) {
+            if (user.getUsername().equals(username)) {
+                throw new Exception("Username already exists.");
+            }
+        }
+        users.add(new User(username, password));
+    }
+
+    // Other methods...
+
+    public static void assignMembership(User user, Membership membership) {
+        user.setMembership(membership);
+    }
+}
+
+
+public class EcartApp {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        try {
+            int choice;
+            do {
+                System.out.println("1. Login\n2. Signup\nChoose option (0 to exit): ");
+                choice = scanner.nextInt();
+
+                if (choice == 1) {
+                    // Login logic
+                } else if (choice == 2) {
+                    System.out.print("Enter username: ");
+                    String username = scanner.next();
+                    System.out.print("Enter password: ");
+                    String password = scanner.next();
+                    UserDatabase.registerUser(username, password);
+
+                    System.out.println("User registered successfully.");
+
+                    System.out.println("Do you want to assign a membership? (y/n)");
+                    String assignMembershipChoice = scanner.next();
+                    if (assignMembershipChoice.equalsIgnoreCase("y")) {
+                        System.out.println("Available Memberships:");
+                        System.out.println("1. Gold (15% Discount)");
+                        System.out.println("2. Silver (10% Discount)");
+                        System.out.print("Choose Membership (1 or 2): ");
+                        int membershipChoice = scanner.nextInt();
+
+                        double discountPercentage = (membershipChoice == 1) ? 0.15 : 0.10;
+                        Membership membership = new Membership(discountPercentage);
+
+                        User user = UserDatabase.getUserByUsername(username);
+                        UserDatabase.assignMembership(user, membership);
+                        System.out.println("Membership assigned successfully.");
+                    }
+                }
+            } while (choice != 0);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+}

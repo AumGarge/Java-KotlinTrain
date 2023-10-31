@@ -1,0 +1,231 @@
+class Customer {
+    String name;
+    String ID;
+    String phone;
+
+    public Customer(String name, String ID, String phone) {
+        this.name = name;
+        this.ID = ID;
+        this.phone = phone;
+    }
+
+    public void applyDiscount(Order order) {
+        // Default behavior: no discount
+    }
+}
+
+import java.util.*;
+
+public class FoodApp {
+    public static void main(String[] args) {
+        Restaurant restaurant = new Restaurant("Delicious Bites", "123 Street", "MultiCuisine", 4);
+
+        // Display restaurant details
+        System.out.println("Restaurant Details:");
+        restaurant.displayDetails();
+
+        Menu[] menu = Menu.getPredefinedMenu();
+        System.out.println("Available Menu Items:");
+        for (Menu item : menu) {
+            item.display();
+        }
+
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Enter customer name: ");
+        String name = scanner.nextLine();
+        System.out.println("Enter customer phone: ");
+        String phone = scanner.nextLine();
+        System.out.println("Enter customer ID: ");
+        String ID = scanner.nextLine();
+
+        Customer customer;
+
+        switch (ID.toLowerCase().charAt(0)) {
+            case 'g':
+                customer = new Guest(name, ID, phone);
+                break;
+            case 'r':
+                customer = new Regular(name, ID, phone);
+                break;
+            case 'p':
+                customer = new Premium(name, ID, phone);
+                break;
+            default:
+                System.out.println("Invalid customer type. Defaulting to Guest.");
+                customer = new Guest(name, ID, phone);
+                break;
+        }
+
+        System.out.println("Enter number of items to order: ");
+        int numItems = scanner.nextInt();
+
+        Order[] orders = new Order[numItems];
+
+        for (int i = 0; i < numItems; i++) {
+            System.out.println("Enter item name for item " + (i + 1) + ": ");
+            String itemName = scanner.next();
+
+            System.out.println("Enter quantity for item " + (i + 1) + ": ");
+            int quantity = scanner.nextInt();
+
+            int itemPrice = findItemPrice(menu, itemName);
+
+            if (itemPrice != -1) {
+                Order order = new Order(itemName, quantity, 0);
+                order.calculateTotalPrice(itemPrice);
+
+                if (customer instanceof Regular) {
+                    Regular regularCustomer = (Regular) customer;
+                    order.applyDiscount(regularCustomer);
+                } else if (customer instanceof Premium) {
+                    Premium premiumCustomer = (Premium) customer;
+                    order.applyDiscount(premiumCustomer);
+                }
+
+                orders[i] = order;
+            } else {
+                System.out.println("Item not found in the menu.");
+            }
+        }
+
+        System.out.println("\nOrder Details:");
+
+        for (Order order : orders) {
+            if (order != null) {
+                order.display();
+                System.out.println();
+            }
+        }
+    }
+
+    public static int findItemPrice(Menu[] menu, String itemName) {
+        for (Menu item : menu) {
+            if (item.dish_name.equalsIgnoreCase(itemName)) {
+                return item.price;
+            }
+        }
+        return -1; // Return -1 if item is not found
+    }
+}
+class Guest extends Customer {
+    public Guest(String name, String email, String phone) {
+        super(name, email, phone);
+    }
+}
+class Menu {
+    String dish_name;
+    int price;
+
+    public Menu(String dish_name, int price) {
+        this.dish_name = dish_name;
+        this.price = price;
+    }
+
+    public void display() {
+        System.out.println("Dish Name: " + dish_name);
+        System.out.println("Price: Rs" + price);
+        System.out.println();
+    }
+
+    public static Menu[] getPredefinedMenu() {
+        Menu[] menu = new Menu[5];
+        menu[0] = new Menu("Pasta", 100);
+        menu[1] = new Menu("Margherita Pizza", 210);
+        menu[2] = new Menu("Burger", 80);
+        menu[3] = new Menu("Sushi", 150);
+        menu[4] = new Menu("Salad", 70);
+        return menu;
+    }
+}
+import java.util.Date;
+import java.util.Random;
+
+class Order {
+    int orderno;
+    Date datetime = new Date();
+    String item_name;
+    int quantity;
+    double total_price;
+
+    // Constructor without order number
+    public Order(String item_name, int quantity, double total_price) {
+        this.orderno = generateRandomOrderNumber(); // Generate random order number
+        this.item_name = item_name;
+        this.quantity = quantity;
+        this.total_price = total_price;
+    }
+
+    public void calculateTotalPrice(double itemPrice) {
+        double delivery_charge = 20;
+        this.total_price = (itemPrice * quantity) + delivery_charge;
+    }
+
+    public void applyDiscount(Regular customer) {
+        this.total_price = (this.total_price - 20) * 0.90; // 10% discount for Regular customers
+    }
+
+    public void applyDiscount(Premium customer) {
+        this.total_price = (this.total_price - 20) * 0.80; // 20% discount for Premium customers
+    }
+
+    public void display() {
+        System.out.println("Order No: " + orderno);
+        System.out.println("Order Time: " + datetime);
+        System.out.println("Item Name: " + item_name);
+        System.out.println("Quantity: " + quantity);
+        System.out.println("Total Price: Rs" + total_price);
+    }
+
+    private int generateRandomOrderNumber() {
+        Random random = new Random();
+        return 1000 + random.nextInt(9000); // Generates a random 4-digit order number
+    }
+}
+
+class Premium extends Customer {
+    public Premium(String name, String ID, String phone) {
+        super(name, ID, phone);
+    }
+
+    @Override
+    public void applyDiscount(Order order) {
+        order.total_price *= 0.80; // 20% discount for Premium customers
+    }
+}
+
+class Regular extends Customer {
+    public Regular(String name, String ID, String phone) {
+        super(name, ID, phone);
+    }
+
+    @Override
+    public void applyDiscount(Order order)
+    {
+        order.total_price *= 0.90; // 10% discount for Regular customers
+    }
+}
+
+
+public class Restaurant {
+    private String name;
+    private String address;
+    private String cuisineType;
+    private int rating;
+
+    public Restaurant(String name, String address, String cuisineType, int rating) {
+        this.name = name;
+        this.address = address;
+        this.cuisineType = cuisineType;
+        this.rating = rating;
+    }
+
+    public void displayDetails() {
+        System.out.println("Restaurant Name: " + name);
+        System.out.println("Address: " + address);
+        System.out.println("Cuisine Type: " + cuisineType);
+        System.out.println("Rating: " + rating + " stars");
+    }
+}
+
+
