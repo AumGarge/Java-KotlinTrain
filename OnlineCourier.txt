@@ -1,0 +1,111 @@
+import java.util.*
+import java.io.IOException
+import java.util.*
+
+class SignUp {
+    var uid: Int = 0
+    var pass: String = ""
+    var name: String = ""
+    var ph: Long = 0
+    var typ_cust: Char = 'a'
+    var add: String = ""
+    var sc = Scanner(System.`in`)
+
+    fun get() {
+        println("Enter User ID:")
+        uid = sc.nextInt()
+        println("Enter Password:")
+        pass = sc.next()
+        println("Enter Name:")
+        name = sc.next()
+        println("Enter Phone:")
+        ph = sc.nextLong()
+        println("Enter Type of Customer:")
+        typ_cust = sc.next()[0]
+        println("Enter Address:")
+        add = sc.next()
+    }
+}
+
+class SignIn {
+    fun getdata(uid: Int, pass: String) {
+        println("User ID: $uid")
+        println("Password: $pass")
+    }
+}
+
+
+
+class Product {
+    var amt: Double = 0.0
+    var sc = Scanner(System.`in`)
+    val productList = mapOf(
+        "product1" to 10.0,
+        "product2" to 20.0,
+        "product3" to 30.0
+    )
+
+    fun prodlist(uid: String, name: String) {
+        println("Product List for User $name:")
+        for ((product, price) in productList) {
+            println("$product - $price")
+        }
+    }
+
+    fun placeord() {
+        println("Enter the product name:")
+        val product = sc.next()
+        if (productList.containsKey(product)) {
+            amt += productList[product] ?: 0.0
+            println("Product added to the cart.")
+        } else {
+            println("Invalid product.")
+        }
+    }
+}
+
+class CalculateBill {
+    fun paybill(amt: Double, type_cust: Char, name: String, add: String, ph: Long) {
+        println("--- Bill ---")
+        println("Customer Name: $name")
+        println("Customer Address: $add")
+        println("Customer Phone: $ph")
+        println("Type of Customer: $type_cust")
+        println("Total Amount: $amt")
+    }
+}
+
+
+
+object ExpressDelivery {
+    @Throws(IOException::class)
+    @JvmStatic
+    fun main(args: Array<String>) {
+        var i: Int
+
+        val su = SignUp()
+        val si = SignIn()
+        val prd = Product()
+        val cal = CalculateBill()
+        val sc = Scanner(System.`in`)
+        println("1. Sign Up.")
+        i = sc.nextInt()
+        if (i == 1) {
+            su.get()
+        }
+        println("Select the Task")
+        println("1. Buy the Product")
+        println("2. Return the Product")
+        i = sc.nextInt()
+        if (i == 1) {
+            prd.prodlist(su.uid.toString(), su.name.toString())
+            prd.placeord()
+            cal.paybill(prd.amt, su.typ_cust, su.name.toString(), su.add.toString(), su.ph)
+        }
+        else if (i == 2) {
+            prd.prodlist(su.uid.toString(), su.name.toString())
+            prd.placeord()
+            cal.paybill(prd.amt, su.typ_cust, su.name.toString(), su.add.toString(), su.ph)
+        }
+    }
+}
